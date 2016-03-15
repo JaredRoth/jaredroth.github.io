@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "What I wish I knew"
-date: date
+date: 2016-03-15
 ---
 
 ## What I wish I knew.

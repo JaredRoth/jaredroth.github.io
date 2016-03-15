@@ -8,8 +8,7 @@
 # Site settings
 title: Adventures in web development
 email: jared.roth@gmail.com
-description: > Wherein Jared learns to be less of a Hermit
-and attempts to embrace the social side of technology
+description: Wherein Jared learns to be less of a Hermit and attempts to embrace the social side of technology
 baseurl: "" # the subpath of your site, e.g. /blog
 # url: "http://yourdomain.com" # the base hostname & protocol for your site
 # twitter_username: jekyllrb
