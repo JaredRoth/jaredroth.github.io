@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "What I wish I knew"
 date: 2016-03-15
 ---
