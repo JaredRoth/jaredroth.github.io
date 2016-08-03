@@ -59,14 +59,14 @@
 	ctx.font = "40px Arial";
 	ctx.fillText("Click in here to begin", canvas.width / 2, canvas.height / 2 + 20);
 
-	$(document).click(function (e) {
+	$(document).click(function () {
 	  if (game.status === 'pre') {
 	    game.instructions();
 	  }
 	});
 
 	$(document).keypress(function (e) {
-	  if (e.which == 13) {
+	  if (e.which === 13) {
 	    if (game.status === 'pre') {
 	      game.beginRound();
 	    } else if (game.status === 'post') {
@@ -88,8 +88,7 @@
 
 	var Ball = __webpack_require__(2);
 	var Block = __webpack_require__(3);
-	var Paddle = __webpack_require__(4);
-	var Player = __webpack_require__(5);
+	var Player = __webpack_require__(4);
 
 	var game = (function () {
 	  function Game(ctx, canvas) {
@@ -206,7 +205,7 @@
 	    key: 'startTimer',
 	    value: function startTimer(game, duration) {
 	      var timer = duration;
-	      var interval = setInterval(function () {
+	      setInterval(function () {
 	        game.message = timer;
 
 	        if (--timer < 0) {
@@ -218,14 +217,14 @@
 	    key: 'finished',
 	    value: function finished() {
 	      return this.players.filter(function (player) {
-	        return player.status == 1;
-	      }).length == 1;
+	        return player.status === 1;
+	      }).length === 1;
 	    }
 	  }, {
 	    key: 'victor',
 	    value: function victor() {
 	      var victor = this.players.filter(function (player) {
-	        return player.status == 1;
+	        return player.status === 1;
 	      })[0];
 
 	      if (victor.num === 1) {
@@ -250,11 +249,6 @@
 
 	  return Game;
 	})();
-
-	function random() {
-	  return Math.random() < 0.5 ? -1 : 1;
-	  return Math.random() * (6 - min) + min;
-	}
 
 	module.exports = game;
 
@@ -302,13 +296,24 @@
 	  }, {
 	    key: 'wallCollision',
 	    value: function wallCollision(canvas) {
-	      //left or right
-	      if (this.x + this.xSpeed > canvas.width - this.radius || this.x + this.xSpeed < 0 + this.radius) {
+	      //left
+	      if (this.x + this.xSpeed < this.radius) {
+	        this.x = this.radius;
 	        this.xSpeed *= -1;
 	      }
-	      //top or bottom
-	      if (this.y + this.ySpeed > canvas.height - this.radius || this.y + this.ySpeed < 0 + this.radius) {
-
+	      //right
+	      if (this.x + this.xSpeed > canvas.width - this.radius) {
+	        this.x = canvas.width - this.radius;
+	        this.xSpeed *= -1;
+	      }
+	      //top
+	      if (this.y + this.ySpeed < this.radius) {
+	        this.y = this.radius;
+	        this.ySpeed *= -1;
+	      }
+	      //bottom
+	      if (this.y + this.ySpeed > canvas.height - this.radius) {
+	        this.y = canvas.height - this.radius;
 	        this.ySpeed *= -1;
 	      }
 	    }
@@ -390,7 +395,7 @@
 	    value: function checkPlayers(players) {
 	      var ball = this;
 	      players.forEach(function (player) {
-	        if (player.status == 1) {
+	        if (player.status === 1) {
 	          ball.checkPaddles(player.paddle);
 	          if (ball.intersects(player)) {
 	            player.status = 0;
@@ -498,6 +503,68 @@
 
 /***/ },
 /* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	var Paddle = __webpack_require__(5);
+
+	var player = (function () {
+	  function Player(num, x, y, dimension, canvas, color) {
+	    _classCallCheck(this, Player);
+
+	    this.status = 1;
+	    this.num = num;
+	    this.x = x;
+	    this.y = y;
+	    this.height = dimension;
+	    this.width = dimension;
+	    this.color = color;
+	    this.blocks = [];
+	    this.paddle = new Paddle(num, canvas);
+	  }
+
+	  _createClass(Player, [{
+	    key: 'draw',
+	    value: function draw(ctx) {
+	      this.blocks.forEach(function (block) {
+	        block.draw(ctx);
+	      });
+
+	      var imageObj = new Image();
+	      imageObj.src = './warlords/images/Warlords_guy.jpg';
+
+	      ctx.drawImage(imageObj, this.x, this.y, this.width, this.height);
+
+	      if (this.status === 1) {
+	        this.paddle.draw(ctx, this.color);
+	      } else {
+	        ctx.globalAlpha = 0.5;
+	        ctx.fillStyle = 'red';
+	        ctx.fillRect(this.x, this.y, this.width, this.height);
+	        ctx.globalAlpha = 1;
+	      }
+
+	      return this;
+	    }
+	  }, {
+	    key: 'paddleListeners',
+	    value: function paddleListeners() {
+	      this.paddle.setupPaddleEventListeners();
+	    }
+	  }]);
+
+	  return Player;
+	})();
+
+	module.exports = player;
+
+/***/ },
+/* 5 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -588,9 +655,9 @@
 	        } else if (this.leftPressed) {
 	          this.dx = -9;
 	          this.dy = -9;
-	          if (this.x < this.oneThirdWidth * 2) {
+	          if (this.x < this.oneThirdWidth * 2 - this.paddleHeight) {
 	            this.vertical = true;
-	            this.x = this.oneThirdWidth * 2;
+	            this.x = this.oneThirdWidth * 2 - this.paddleHeight;
 	            this.y = this.setPaddleY() - this.paddleWidth;
 	          } else if (this.vertical && this.y > 0) {
 	            this.y -= 9;
@@ -614,9 +681,9 @@
 	        } else if (this.leftPressed && this.x > 0) {
 	          this.dx = -9;
 	          this.dy = -9;
-	          if (this.y < this.oneThirdHeight * 2) {
+	          if (this.y < this.oneThirdHeight * 2 - this.paddleHeight) {
 	            this.x = this.oneThirdWidth - this.paddleWidth;
-	            this.y = this.oneThirdHeight * 2;
+	            this.y = this.oneThirdHeight * 2 - this.paddleHeight;
 	            this.vertical = false;
 	          } else if (this.vertical) {
 	            this.y -= 9;
@@ -628,7 +695,7 @@
 	        if (this.rightPressed && this.x < this.canvas - this.paddleWidth) {
 	          this.dx = 9;
 	          this.dy = -9;
-	          if (this.y < this.oneThirdWidth * 2) {
+	          if (this.y < this.oneThirdWidth * 2 - this.paddleHeight) {
 	            this.x = this.oneThirdWidth * 2;
 	            this.y = this.setPaddleY();
 	            this.vertical = false;
@@ -640,8 +707,8 @@
 	        } else if (this.leftPressed) {
 	          this.dx = -9;
 	          this.dy = 9;
-	          if (this.x < this.oneThirdWidth * 2) {
-	            this.x = this.oneThirdWidth * 2;
+	          if (this.x < this.oneThirdWidth * 2 - this.paddleHeight) {
+	            this.x = this.oneThirdWidth * 2 - this.paddleHeight;
 	            this.y = this.oneThirdHeight * 2;
 	            this.vertical = true;
 	          } else if (this.vertical && this.y < this.canvas - this.paddleWidth) {
@@ -667,7 +734,7 @@
 	      if (this.player === 1 || this.player === 2) {
 	        return this.canvas / 3;
 	      } else if (this.player === 3 || this.player === 4) {
-	        return this.canvas / 3 * 2;
+	        return this.canvas / 3 * 2 - this.paddleHeight;
 	      }
 	    }
 	  }, {
@@ -739,68 +806,6 @@
 	})();
 
 	module.exports = paddle;
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	var Paddle = __webpack_require__(4);
-
-	var player = (function () {
-	  function Player(num, x, y, dimension, canvas, color) {
-	    _classCallCheck(this, Player);
-
-	    this.status = 1;
-	    this.num = num;
-	    this.x = x;
-	    this.y = y;
-	    this.height = dimension;
-	    this.width = dimension;
-	    this.color = color;
-	    this.blocks = [];
-	    this.paddle = new Paddle(num, canvas);
-	  }
-
-	  _createClass(Player, [{
-	    key: 'draw',
-	    value: function draw(ctx) {
-	      this.blocks.forEach(function (block) {
-	        block.draw(ctx);
-	      });
-
-	      var imageObj = new Image();
-	      imageObj.src = './warlords/images/Warlords_guy.jpg';
-
-	      ctx.drawImage(imageObj, this.x, this.y, this.width, this.height);
-
-	      if (this.status === 1) {
-	        this.paddle.draw(ctx, this.color);
-	      } else {
-	        ctx.globalAlpha = 0.5;
-	        ctx.fillStyle = 'red';
-	        ctx.fillRect(this.x, this.y, this.width, this.height);
-	        ctx.globalAlpha = 1;
-	      }
-
-	      return this;
-	    }
-	  }, {
-	    key: 'paddleListeners',
-	    value: function paddleListeners() {
-	      this.paddle.setupPaddleEventListeners();
-	    }
-	  }]);
-
-	  return Player;
-	})();
-
-	module.exports = player;
 
 /***/ }
 /******/ ]);
